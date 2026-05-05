@@ -1,0 +1,40 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="dashboard-grid">
+    <div class="panel panel-map">
+        <h2>Sea Region Selection</h2>
+        <div id="map"></div>
+    </div>
+
+    <div class="panel panel-side">
+        <h3>Selected Geometry</h3>
+        <pre id="geometryInfo">No region selected.</pre>
+    </div>
+
+    <div class="panel panel-side">
+        <h3>SST - Sea (Gibraltar Strait)</h3>
+
+        <label for="sstStartDate">Start date</label>
+        <input type="date" id="sstStartDate" value="2023-01-01">
+
+        <label for="sstEndDate">End date</label>
+        <input type="date" id="sstEndDate" value="2023-12-31">
+
+        <button class="primary-btn" onclick="fetchSstDashboard()">Load SST Dashboard</button>
+    </div>
+
+    <div class="panel panel-full">
+        <h3>Summary</h3>
+        <div id="sstSummary"></div>
+    </div>
+
+    <div class="panel panel-full chart-panel">
+        <canvas id="sstChart"></canvas>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/sst.js') }}"></script>
+{% endblock %}

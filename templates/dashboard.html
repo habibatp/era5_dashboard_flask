@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ERA5 + MODIS Dashboard</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-draw/dist/leaflet.draw.css" />
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 45% 55%;
+            height: 100vh;
+        }
+
+        #map {
+            height: 100%;
+            width: 100%;
+        }
+
+        .panel {
+            padding: 16px;
+            overflow-y: auto;
+        }
+
+        .card {
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .row>div {
+            flex: 1;
+            min-width: 180px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: bold;
+        }
+
+        select,
+        input,
+        button {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+        }
+
+        .chart-box {
+            height: 320px;
+        }
+
+        h2,
+        h3 {
+            margin-top: 0;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .sidebar {
+            width: 220px;
+            background: #1e293b;
+            color: white;
+            padding: 15px;
+        }
+
+        .sidebar button {
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 10px;
+            border: none;
+            background: #334155;
+            color: white;
+            cursor: pointer;
+        }
+
+        .sidebar button:hover {
+            background: #475569;
+        }
+
+        .content {
+            flex: 1;
+            padding: 10px;
+        }
+
+        .section {
+            display: none;
+        }
+
+        #map {
+            height: 300px;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+            <h2>📊 Analyse</h2>
+
+            <button onclick="showSection('era5')">ERA5</button>
+            <button onclick="showSection('modis_land')">MODIS - Land</button>
+            <button id="seaBtn" style="display:none;" onclick="showSection('sst')">
+                MODIS - Sea
+            </button>
+        </div>
+
+        <!-- MAIN CONTENT -->
+        <div class="content">
+
+            <!-- MAP -->
+            <div id="map"></div>
+
+            <!-- ERA5 -->
+            <div id="era5Section" class="section">
+                <h2>ERA5 Dashboard</h2>
+            </div>
+
+            <!-- MODIS LAND -->
+            <div id="modisSection" class="section">
+                <h2>MODIS - Land (Morocco / Spain)</h2>
+                <!-- ton code modis ici -->
+            </div>
+
+            <!-- SST SEA -->
+            <div id="sstSection" class="section">
+                <h2>Sea Surface Temperature (Gibraltar)</h2>
+                <!-- ton code sst ici -->
+            </div>
+
+        </div>
+    </div>
+    <div class="container">
+        <div id="map"></div>
+
+        <div class="panel">
+            <div class="card">
+                <h2>Selected Geometry</h2>
+                <pre id="geometryInfo">No region selected.</pre>
+            </div>
+
+            <div class="card">
+                <h2>MODIS - Land (Morocco / Spain)</h2>
+
+                <div class="row">
+                    <div>
+                        <label for="modisVariable">Variable</label>
+                        <select id="modisVariable">
+                            <option value="terra_lst_day">Terra LST Day</option>
+                            <option value="terra_lst_night">Terra LST Night</option>
+                            <option value="terra_lst_qa_day">Terra LST QA Day</option>
+                            <option value="terra_lst_qa_night">Terra LST QA Night</option>
+                            <option value="terra_ndvi">Terra NDVI</option>
+                            <option value="terra_ndvi_qa">Terra NDVI QA</option>
+                            <option value="aqua_lst_day">Aqua LST Day</option>
+                            <option value="aqua_lst_night">Aqua LST Night</option>
+                            <option value="aqua_lst_qa_day">Aqua LST QA Day</option>
+                            <option value="aqua_lst_qa_night">Aqua LST QA Night</option>
+                            <option value="aqua_ndvi">Aqua NDVI</option>
+                            <option value="aqua_ndvi_qa">Aqua NDVI QA</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="modisStartDate">Start date</label>
+                        <input type="date" id="modisStartDate" value="2023-01-01">
+                    </div>
+
+                    <div>
+                        <label for="modisEndDate">End date</label>
+                        <input type="date" id="modisEndDate" value="2023-12-31">
+                    </div>
+                </div>
+
+                <button onclick="fetchModisDashboard()">Load MODIS Dashboard</button>
+
+                <div id="modisSummary"></div>
+
+                <div class="chart-box">
+                    <canvas id="modisChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>SST - Sea (Gibraltar Strait)</h2>
+
+                <div class="row">
+                    <div>
+                        <label for="sstStartDate">Start date</label>
+                        <input type="date" id="sstStartDate" value="2023-01-01">
+                    </div>
+
+                    <div>
+                        <label for="sstEndDate">End date</label>
+                        <input type="date" id="sstEndDate" value="2023-12-31">
+                    </div>
+                </div>
+
+                <button onclick="fetchSstDashboard()">Load SST Dashboard</button>
+
+                <div id="sstSummary"></div>
+
+                <div class="chart-box">
+                    <canvas id="sstChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>ERA5 Section</h2>
+                <p>Keep your existing ERA5 panel here.</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-draw/dist/leaflet.draw.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/modis.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/sst.js') }}"></script>
+</body>
+
+</html>

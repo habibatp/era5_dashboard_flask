@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ERA5 Dashboard Flask</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+    <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+    <div class="page">
+        <h1>🌍 ERA5 Spatio-Temporal Dashboard</h1>
+
+        <section class="section">
+            <h2>1. Select your study region</h2>
+
+            <div class="grid-top">
+                <div class="card">
+                    <h3>Carte</h3>
+                    <div id="main-map"></div>
+
+                </div>
+
+                <div class="card">
+                    <h3>Sélectionnez l'emplacement</h3>
+
+                    <label>Mode de sélection</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="location_mode" value="city" checked> Ville</label>
+                        <label><input type="radio" name="location_mode" value="coords"> Coordonnées</label>
+                        <label><input type="radio" name="location_mode" value="map"> Clic sur carte</label>
+                    </div>
+
+                    <div id="city-block">
+                        <label>Ville</label>
+                        <select id="city">
+                            {% for c in cities %}
+                            <option value="{{ c.name }}">{{ c.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div id="coords-block" class="hidden">
+                        <label>Latitude</label>
+                        <input id="lat" type="number" step="0.0001" value="31.6295">
+
+                        <label>Longitude</label>
+                        <input id="lon" type="number" step="0.0001" value="-7.9811">
+                    </div>
+
+                    <div class="selection-box">
+                        <h3>Zone choisie</h3>
+                        <p><strong>Nom :</strong> <span id="selected-name">Marrakech</span></p>
+                        <p><strong>Latitude :</strong> <span id="selected-lat">31.6295</span></p>
+                        <p><strong>Longitude :</strong> <span id="selected-lon">-7.9811</span></p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>2. Select variable and time period</h2>
+
+            <div class="controls-grid">
+                <div class="card">
+                    <label>Variable type</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="variable_type" value="surface" checked> surface</label>
+                        <label><input type="radio" name="variable_type" value="pressure"> pressure</label>
+                    </div>
+
+                    <label>Variable</label>
+                    <select id="variable"></select>
+
+                    <div id="pressure-block" class="hidden">
+                        <label>Pressure level</label>
+                        <select id="pressure_level">
+                            {% for p in pressure_levels %}
+                            <option value="{{ p }}" {% if p==500 %}selected{% endif %}>{{ p }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <label>Start date</label>
+                    <input id="start_date" type="date" value="2003-11-01">
+
+                    <label>End date</label>
+                    <input id="end_date" type="date" value="2003-11-30">
+                </div>
+
+                <div class="card">
+                    <label>Aggregation</label>
+                    <select id="aggregation">
+                        {% for a in allowed_aggregations %}
+                        <option value="{{ a }}">{{ a }}</option>
+                        {% endfor %}
+                    </select>
+
+                    <label>Box radius</label>
+                    <input id="box_radius_deg" type="range" min="0.10" max="1.00" step="0.05" value="0.25">
+                    <span id="radius-value">0.25</span>
+
+                    <button id="load-btn">Load data</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>3. Time series analysis</h2>
+
+            <div class="result-grid">
+                <div class="card">
+                    <h2>Localisation sélectionnée</h2>
+                    <div id="selected-map"></div>
+
+                    <h2>Selection summary</h2>
+                    <div id="summary"></div>
+                </div>
+
+                <div class="card">
+                    <h2 id="chart-title">Variable evolution</h2>
+                    <div id="chart"></div>
+                </div>
+            </div>
+
+            <div class="kpi-grid" id="kpis"></div>
+
+            <div class="card">
+                <h2>Data table</h2>
+                <div class="table-wrapper">
+                    <table id="data-table">
+                        <thead>
+                            <tr>
+                                <th>time</th>
+                                <th>value</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        window.APP_CONFIG = {
+            cities: {{ cities|tojson }},
+            surfaceVariables: {{ surface_variables|tojson }},
+            pressureVariables: {{ pressure_variables|tojson }}
+        };
+    </script>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+
+</html>

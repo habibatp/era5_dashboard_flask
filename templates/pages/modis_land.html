@@ -1,0 +1,56 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="dashboard-grid">
+    <div class="panel panel-map">
+        <h2>Map Selection</h2>
+        <div id="map"></div>
+    </div>
+
+    <div class="panel panel-side">
+        <h3>Selected Geometry</h3>
+        <pre id="geometryInfo">No region selected.</pre>
+    </div>
+
+    <div class="panel panel-side">
+        <h3>MODIS - Land (Morocco / Spain)</h3>
+
+        <label for="modisVariable">Variable</label>
+        <select id="modisVariable">
+            <option value="terra_lst_day">Terra LST Day</option>
+            <option value="terra_lst_night">Terra LST Night</option>
+            <option value="terra_lst_qa_day">Terra LST QA Day</option>
+            <option value="terra_lst_qa_night">Terra LST QA Night</option>
+            <option value="terra_ndvi">Terra NDVI</option>
+            <option value="terra_ndvi_qa">Terra NDVI QA</option>
+            <option value="aqua_lst_day">Aqua LST Day</option>
+            <option value="aqua_lst_night">Aqua LST Night</option>
+            <option value="aqua_lst_qa_day">Aqua LST QA Day</option>
+            <option value="aqua_lst_qa_night">Aqua LST QA Night</option>
+            <option value="aqua_ndvi">Aqua NDVI</option>
+            <option value="aqua_ndvi_qa">Aqua NDVI QA</option>
+        </select>
+
+        <label for="modisStartDate">Start date</label>
+        <input type="date" id="modisStartDate" value="2023-01-01">
+
+        <label for="modisEndDate">End date</label>
+        <input type="date" id="modisEndDate" value="2023-12-31">
+
+        <button class="primary-btn" onclick="fetchModisDashboard()">Load MODIS Dashboard</button>
+    </div>
+
+    <div class="panel panel-full">
+        <h3>Summary</h3>
+        <div id="modisSummary"></div>
+    </div>
+
+    <div class="panel panel-full chart-panel">
+        <canvas id="modisChart"></canvas>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/modis.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,143 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="era5-page">
+    <section class="section-title">
+        <h2>1. Select your study region</h2>
+    </section>
+
+    <div class="era5-top-grid">
+        <div class="panel panel-map">
+            <h3>Carte</h3>
+            <div id="map"></div>
+        </div>
+
+        <div class="panel panel-side">
+            <h3>Sélectionnez l'emplacement</h3>
+
+            <label>Mode de sélection</label>
+            <div class="radio-row">
+                <label><input type="radio" name="locationMode" value="city" checked> Ville</label>
+                <label><input type="radio" name="locationMode" value="coords"> Coordonnées</label>
+                <label><input type="radio" name="locationMode" value="click"> Clic sur carte</label>
+            </div>
+
+            <div id="cityModeBlock">
+                <label for="era5City">Ville</label>
+                <select id="era5City">
+                    {% for name, coords in cities.items() %}
+                    <option value="{{ coords[0] }},{{ coords[1] }},{{ name }}">{{ name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div id="coordsModeBlock" style="display:none;">
+
+                <label for="era5Latitude">Latitude</label>
+                <input type="number" step="any" id="era5Latitude" value="31.6295">
+
+                <label for="era5Longitude">Longitude</label>
+                <input type="number" step="any" id="era5Longitude" value="-7.9811">
+            </div>
+
+            <div class="selected-zone-card">
+                <h4>Zone choisie</h4>
+                <p><strong>Latitude :</strong> <span id="selectedLat">31.6295</span></p>
+                <p><strong>Longitude :</strong> <span id="selectedLon">-7.9811</span></p>
+            </div>
+        </div>
+    </div>
+
+    <section class="section-title">
+        <h2>2. Select variable and time period</h2>
+    </section>
+
+    <div class="era5-controls-grid">
+        <div class="panel">
+            <label>Variable type</label>
+            <div class="radio-row">
+                <label><input type="radio" name="era5VariableType" value="surface" checked> surface</label>
+                <label><input type="radio" name="era5VariableType" value="pressure"> pressure</label>
+            </div>
+
+            <label for="era5SurfaceVariable">Variable</label>
+            <select id="era5SurfaceVariable">
+                {% for code, label in surface_variables.items() %}
+                <option value="{{ code }}">{{ label }}</option>
+                {% endfor %}
+            </select>
+
+            <select id="era5PressureVariable" style="display:none; margin-top:10px;">
+                {% for code, label in pressure_variables.items() %}
+                <option value="{{ code }}">{{ label }}</option>
+                {% endfor %}
+            </select>
+
+            <select id="era5PressureLevel" style="display:none; margin-top:10px;">
+                {% for level in pressure_levels %}
+                <option value="{{ level }}">{{ level }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="panel">
+            <label for="era5StartDate">Start date</label>
+            <input type="date" id="era5StartDate" value="2003-11-01">
+
+            <label for="era5EndDate">End date</label>
+            <input type="date" id="era5EndDate" value="2003-11-30">
+        </div>
+
+        <div class="panel">
+            <label for="era5Aggregation">Aggregation</label>
+            <select id="era5Aggregation">
+                {% for agg in allowed_aggregations %}
+                <option value="{{ agg }}">{{ agg }}</option>
+                {% endfor %}
+            </select>
+
+            <label for="era5BoxRadius">Box radius</label>
+            <input type="range" id="era5BoxRadius" min="0.1" max="2" step="0.05" value="0.25">
+            <div id="era5BoxRadiusValue">0.25</div>
+
+            <button id="era5LoadBtn" class="primary-btn" onclick="fetchEra5Dashboard()">Load data</button>
+            <div id="era5Loading" class="loading-text" style="display:none;">Chargement ERA5 en cours...</div>
+        </div>
+    </div>
+
+    <section class="section-title">
+        <h2>3. Time series analysis</h2>
+    </section>
+
+    <div class="era5-analysis-grid">
+        <div class="panel summary-panel">
+            <h3>Localisation sélectionnée</h3>
+            <div id="era5Summary"></div>
+        </div>
+
+        <div class="panel chart-panel">
+            <h3>Variable evolution</h3>
+            <canvas id="era5Chart"></canvas>
+        </div>
+    </div>
+
+    <div class="panel panel-full">
+        <h3>Data table</h3>
+        <div class="table-wrapper">
+            <table id="era5Table">
+                <thead>
+                    <tr id="era5TableHead">
+                        <th>time</th>
+                        <th>value</th>
+                    </tr>
+                </thead>
+                <tbody id="era5TableBody"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/era5.js') }}"></script>
+{% endblock %}
