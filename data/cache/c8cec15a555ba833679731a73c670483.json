@@ -1,0 +1,12 @@
+{
+  "variable": "sst",
+  "label": "Sea Surface Temperature",
+  "series": [],
+  "summary": {
+    "count": 0,
+    "mean": null,
+    "min": null,
+    "max": null
+  },
+  "from_cache": false
+}

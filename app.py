@@ -24,14 +24,10 @@ def create_app():
 
     @app.route("/analysis/era5")
     def era5_page():
-        cities = [
-            {"name": city, "lat": coords[0], "lon": coords[1]}
-            for city, coords in settings.cities.items()
-        ]
         return render_template(
             "pages/era5.html",
             page_title="ERA5 Dashboard",
-            cities=cities,
+            cities=settings.cities,
             surface_variables=settings.surface_variables,
             pressure_variables=settings.pressure_variables,
             pressure_levels=settings.pressure_levels,
